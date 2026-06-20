@@ -12,8 +12,11 @@ class MataKuliahController extends Controller
      */
     public function index()
     {
-        $matakuliah = MataKuliah::all();
-        return view('matkul.index', compact('matakuliah'));
+       $matakuliahs = MataKuliah::
+                        latest()->
+                        paginate(15);
+
+            return view('matkul.index', compact('matakuliahs'));
     }
 
     /**

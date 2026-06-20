@@ -11,18 +11,18 @@
         <div class="col-md-6">
             <div class="d-flex gap-2">
 
-                <button href="{{ route('mahasiswa.create') }}"
+                <button href="{{ route('dosen.create') }}"
                     class="btn btn-primary d-inline-flex align-items-center gap-2">
-                    <i class="fa fa-plus"></i> Tambah Mahasiswa
+                    <i class="fa fa-plus"></i> Tambah Dosen
                 </button>
 
-                <button href="{{ route('mahasiswa.export.excel') }}"
+                <button href="{{ route('dosen.export.excel') }}"
                     class="btn btn-success d-inline-flex align-items-center gap-2">
                     <i class="fa fa-file-excel"></i> Export Excel
                 </button>
 
                 <form id="importForm"
-                    action="{{ route('mahasiswa.import.excel') }}"
+                    action="{{ route('dosen.import.excel') }}"
                     method="POST"
                     enctype="multipart/form-data"
                     class="d-inline">
@@ -56,7 +56,7 @@
                     <input type="text"
                         id="searchInput"
                         class="form-control"
-                        placeholder="Cari mahasiswa...">
+                        placeholder="Cari dosen...">
                 </div>
             </div>
         </div>
