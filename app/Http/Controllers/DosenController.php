@@ -12,8 +12,11 @@ class DosenController extends Controller
      */
     public function index()
     {
-        $dosens = Dosen::all();
-        return view('dosen.index', compact('dosens'));
+         $dosens = Dosen::with('user')
+                            ->latest()
+                            ->paginate(15);
+
+            return view('dosen.index', compact('dosens'));
     }
 
     /**
