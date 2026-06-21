@@ -12,8 +12,9 @@ class KrsController extends Controller
      */
     public function index()
     {
-        $krs = Krs::with(['mahasiswa', 'jadwal.mataKuliah'])->get();
-        return view('krs.index', compact('krs'));
+        $krs = Krs::with(['mahasiswa', 'jadwal.mataKuliah'])->latest()->paginate(15);
+
+            return view('krs.index', compact('krs'));
     }
 
     /**
