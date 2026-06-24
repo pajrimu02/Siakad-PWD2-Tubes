@@ -15,8 +15,7 @@ class MataKuliahController extends Controller
        $matakuliahs = MataKuliah::
                         latest()->
                         paginate(15);
-
-            return view('admin.matkul.index', compact('matakuliahs'));
+        return view('admin.matkul.index', compact('matakuliahs'));
     }
 
     /**

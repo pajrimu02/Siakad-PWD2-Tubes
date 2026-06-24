@@ -10,6 +10,7 @@ use App\Http\Controllers\MatakuliahController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KrsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\NilaiadminController;
 // User Controllers
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\KrsController as UserKrsController;
@@ -19,8 +20,28 @@ use App\Http\Controllers\User\NilaiController as UserNilaiController;
 use App\Http\Controllers\User\PembayaranController;
 use Spatie\Permission\Models\Role;
 
+/*
+|--------------------------------------------------------------------------
+| Login Redirect
+|--------------------------------------------------------------------------
+*/
  
- 
+ Route::get('/', function () {
+
+    if (!auth()->check()) {
+        return redirect('/login');
+    }
+
+    if (auth()->user()->hasRole('admin')) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if (auth()->user()->hasRole('mahasiswa')) {
+        return redirect()->route('user.dashboard');
+    }
+
+    return redirect('/login');
+});
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
@@ -50,6 +71,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('dosen', DosenController::class);
     Route::resource('matakuliah', MatakuliahController::class);
     Route::resource('jadwal', JadwalController::class);
+    Route::resource('nilai', NilaiadminController::class);
     Route::resource('krs', KrsController::class);
     Route::resource('users', UserController::class);
 

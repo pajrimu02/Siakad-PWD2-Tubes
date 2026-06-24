@@ -1,5 +1,78 @@
 @extends('layouts.admin')
 
+@push('styles')
+<style>
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        color: #fff;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-1px);
+        opacity: 0.9;
+    }
+
+    .btn-add { background: linear-gradient(135deg,#6366f1,#4f46e5); }
+    .btn-export { background: linear-gradient(135deg,#22c55e,#16a34a); }
+    .btn-import { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+
+    .search-wrap {
+        position: relative;
+        max-width: 300px;
+    }
+
+    .search-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .search-wrap input {
+        padding: 9px 12px 9px 34px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        outline: none;
+    }
+
+    .search-wrap input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+
+    .card-modern {
+        border-radius: 14px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    table th {
+        font-size: 12px;
+        text-transform: uppercase;
+        background: #f8fafc;
+    }
+
+    table td {
+        font-size: 14px;
+        color: #334155;
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div class="container-fluid">
@@ -7,37 +80,30 @@
     {{-- HEADER --}}
     <div class="row mb-3 align-items-center">
 
-        {{-- BUTTON KIRI --}}
+        {{-- LEFT BUTTON --}}
         <div class="col-md-6">
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
 
-                <a href="{{ route('matakuliah.create') }}"
-                   class="btn btn-primary d-inline-flex align-items-center gap-2">
-                    <i class="fa fa-plus"></i> Tambah Mata Kuliah
+                <a href="{{ route('matakuliah.create') }}" class="btn-modern btn-add">
+                    <i class="fa fa-plus"></i> Tambah Matakuliah
                 </a>
 
-                <a href="{{ route('matakuliah.export.excel') }}"
-                   class="btn btn-success d-inline-flex align-items-center gap-2">
+                <a href="{{ route('matakuliah.export.excel') }}" class="btn-modern btn-export">
                     <i class="fa fa-file-excel"></i> Export Excel
                 </a>
 
-                <form id="importForm"
-                      action="{{ route('matakuliah.import.excel') }}"
+                <form action="{{ route('matakuliah.import.excel') }}"
                       method="POST"
                       enctype="multipart/form-data"
                       class="d-inline">
 
                     @csrf
 
-                    <input type="file"
-                           id="excelFile"
-                           name="file"
-                           accept=".xlsx,.xls"
-                           hidden>
+                    <input type="file" id="excelFile" name="file" hidden>
 
                     <button type="button"
-                            class="btn btn-info d-inline-flex align-items-center gap-2"
-                            onclick="document.getElementById('excelFile').click();">
+                        class="btn-modern btn-import"
+                        onclick="document.getElementById('excelFile').click();">
                         <i class="fa fa-upload"></i> Import Excel
                     </button>
 
@@ -46,64 +112,61 @@
             </div>
         </div>
 
-        {{-- SEARCH KANAN --}}
-        <div class="col-md-6">
-            <div class="d-flex justify-content-end">
-                <div class="input-group" style="max-width:300px;">
-                    <span class="input-group-text bg-white">
-                        <i class="fa fa-search text-muted"></i>
-                    </span>
-                    <input type="text"
-                           id="searchInput"
-                           class="form-control"
-                           placeholder="Cari mata kuliah...">
-                </div>
+        {{-- SEARCH RIGHT --}}
+        <div class="col-md-6 d-flex justify-content-end mt-2 mt-md-0">
+
+            <div class="search-wrap">
+                <i class="fa fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari matakuliah...">
             </div>
+
         </div>
 
     </div>
 
-    {{-- CARD TABLE --}}
-    <div class="card shadow border-0">
+    {{-- TABLE CARD --}}
+    <div class="card card-modern">
 
-        <div class="card-header bg-white">
-            <h5 class="mb-0">
+        <div class="card-header d-flex justify-content-between">
+            <span>
                 <i class="fa fa-book text-primary"></i>
-                Data Mata Kuliah
-            </h5>
+                Data Matakuliah
+            </span>
+            <small class="text-muted">
+                {{ $matakuliahs->total() }} data
+            </small>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-0">
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table table-hover mb-0">
 
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
-                            <th width="60">No</th>
-                            <th>Kode</th>
-                            <th>Nama Mata Kuliah</th>
+                            <th>No</th>
+                            <th>Kode MK</th>
+                            <th>Nama Matakuliah</th>
                             <th>SKS</th>
                             <th>Semester</th>
-                            <th width="180">Aksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                    @foreach($matakuliahs as $key => $mk)
-                    <tr>
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $mk->kode_mk }}</td>
-                        <td>{{ $mk->nama_mk }}</td>
-                        <td>{{ $mk->sks }}</td>
-                        <td>{{ $mk->semester }}</td>
+
+                    @forelse($matakuliahs as $key => $mk)
+                        <tr>
+                            <td>{{ $matakuliahs->firstItem() + $key }}</td>
+                            <td>{{ $mk->kode_mk }}</td>
+                            <td>{{ $mk->nama_mk }}</td>
+                            <td>{{ $mk->sks }}</td>
+                            <td>{{ $mk->semester }}</td>
+
                             <td class="text-nowrap">
 
-                                <a href="{{ route('matakuliah.show', $mk->id) }}"
-                                   class="btn btn-info btn-sm">
-                                    Detail
-                                </a>
+                                <a href="#" class="btn btn-info btn-sm">Detail</a>
 
                                 <a href="{{ route('matakuliah.edit', $mk->id) }}"
                                    class="btn btn-warning btn-sm">
@@ -125,31 +188,32 @@
                                 </form>
 
                             </td>
-
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                Tidak ada data matakuliah
+                            </td>
+                        </tr>
+                    @endforelse
+
                     </tbody>
 
                 </table>
 
             </div>
 
-            {{-- PAGINATION --}}
-            <div class="d-flex justify-content-between align-items-center mt-3">
+        </div>
 
-                <small class="text-muted">
-                    Menampilkan
-                    {{ $matakuliahs->firstItem() }}
-                    -
-                    {{ $matakuliahs->lastItem() }}
-                    dari
-                    {{ $matakuliahs->total() }}
-                    data
-                </small>
+        {{-- PAGINATION --}}
+        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top">
 
-                {{ $matakuliahs->links('pagination::bootstrap-5') }}
+            <small class="text-muted">
+                Menampilkan {{ $matakuliahs->firstItem() }} - {{ $matakuliahs->lastItem() }}
+                dari {{ $matakuliahs->total() }} data
+            </small>
 
-            </div>
+            {{ $matakuliahs->links('pagination::bootstrap-5') }}
 
         </div>
 

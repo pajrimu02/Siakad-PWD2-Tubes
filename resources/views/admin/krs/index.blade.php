@@ -1,5 +1,89 @@
 @extends('layouts.admin')
 
+@push('styles')
+<style>
+    /* ===== HEADER BUTTON STYLE ===== */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        color: #fff;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-1px);
+        opacity: 0.9;
+    }
+
+    .btn-add { background: linear-gradient(135deg,#6366f1,#4f46e5); }
+    .btn-export { background: linear-gradient(135deg,#22c55e,#16a34a); }
+    .btn-import { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+
+    /* SEARCH */
+    .search-wrap {
+        position: relative;
+        max-width: 300px;
+    }
+
+    .search-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .search-wrap input {
+        padding: 9px 12px 9px 34px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        outline: none;
+    }
+
+    .search-wrap input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+
+    /* CARD */
+    .card-modern {
+        border-radius: 14px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 14px 18px;
+        font-weight: 600;
+    }
+
+    /* TABLE */
+    table th {
+        font-size: 12px;
+        text-transform: uppercase;
+        background: #f8fafc;
+    }
+
+    table td {
+        font-size: 14px;
+        color: #334155;
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div class="container-fluid">
@@ -7,116 +91,93 @@
     {{-- HEADER --}}
     <div class="row mb-3 align-items-center">
 
-        {{-- BUTTON KIRI --}}
+        {{-- LEFT BUTTONS --}}
         <div class="col-md-6">
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
 
-                <a href="{{ route('krs.create') }}"
-                   class="btn btn-primary d-inline-flex align-items-center gap-2">
+                <a href="{{ route('krs.create') }}" class="btn-modern btn-add">
                     <i class="fa fa-plus"></i> Tambah KRS
                 </a>
 
-                {{-- EXPORT --}}
-                <a href="#"
-                   class="btn btn-success d-inline-flex align-items-center gap-2">
+                <a href="#" class="btn-modern btn-export">
                     <i class="fa fa-file-excel"></i> Export Excel
                 </a>
 
-                {{-- IMPORT --}}
-                <form id="importForm"
-                      action="#"
-                      method="POST"
-                      enctype="multipart/form-data"
-                      class="d-inline">
-
+                <form action="#" method="POST" enctype="multipart/form-data" class="d-inline">
                     @csrf
 
-                    <input type="file"
-                           id="excelFile"
-                           name="file"
-                           accept=".xlsx,.xls"
-                           hidden>
+                    <input type="file" id="file" name="file" hidden>
 
-                    <button type="button"
-                            class="btn btn-info d-inline-flex align-items-center gap-2"
-                            onclick="document.getElementById('excelFile').click();">
+                    <button type="button" class="btn-modern btn-import"
+                        onclick="document.getElementById('file').click();">
                         <i class="fa fa-upload"></i> Import Excel
                     </button>
-
                 </form>
 
             </div>
         </div>
 
-        {{-- SEARCH KANAN --}}
-        <div class="col-md-6">
-            <div class="d-flex justify-content-end">
-                <div class="input-group" style="max-width:300px;">
-                    <span class="input-group-text bg-white">
-                        <i class="fa fa-search text-muted"></i>
-                    </span>
-                    <input type="text"
-                           id="searchInput"
-                           class="form-control"
-                           placeholder="Cari KRS...">
-                </div>
+        {{-- SEARCH RIGHT --}}
+        <div class="col-md-6 d-flex justify-content-end mt-2 mt-md-0">
+
+            <div class="search-wrap">
+                <i class="fa fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari KRS...">
             </div>
+
         </div>
 
     </div>
 
-    {{-- CARD TABLE --}}
-    <div class="card shadow border-0">
+    {{-- TABLE CARD --}}
+    <div class="card card-modern">
 
-        <div class="card-header bg-white">
-            <h5 class="mb-0">
-                <i class="fa fa-file text-primary"></i>
-                Data KRS
-            </h5>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>
+                <i class="fa fa-file text-primary"></i> Data KRS
+            </span>
+            <small class="text-muted">
+                {{ $krs->total() }} data
+            </small>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-0">
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table table-hover mb-0">
 
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
-                            <th width="60">No</th>
+                            <th>No</th>
                             <th>Mahasiswa</th>
+                            <th>Dosen Wali</th>
                             <th>Tahun Akademik</th>
                             <th>Mata Kuliah</th>
                             <th>Semester</th>
-                            <th width="180">Aksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                    @foreach($krs as $key => $k)
+
+                    @forelse($krs as $key => $k)
                         <tr>
                             <td>{{ $krs->firstItem() + $key }}</td>
-
                             <td>{{ $k->mahasiswa->nama ?? '-' }}</td>
+                            <td></td>
                             <td>{{ $k->tahun_akademik ?? '-' }}</td>
                             <td>{{ $k->jadwal->mataKuliah->nama_mk ?? '-' }}</td>
                             <td>{{ $k->semester ?? '-' }}</td>
 
                             <td class="text-nowrap">
 
-                                {{-- DETAIL (kalau ada nanti) --}}
-                                <a href="#"
-                                   class="btn btn-info btn-sm">
-                                    Detail
-                                </a>
+                                <a href="#" class="btn btn-info btn-sm">Detail</a>
 
-                                {{-- EDIT --}}
-                                <a href="{{ route('krs.edit', $k->id) }}"
-                                   class="btn btn-warning btn-sm">
+                                <a href="{{ route('krs.edit', $k->id) }}" class="btn btn-warning btn-sm">
                                     Edit
                                 </a>
 
-                                {{-- DELETE --}}
                                 <form action="{{ route('krs.destroy', $k->id) }}"
                                       method="POST"
                                       class="d-inline">
@@ -133,7 +194,14 @@
 
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                Tidak ada data KRS
+                            </td>
+                        </tr>
+                    @endforelse
+
                     </tbody>
 
                 </table>
@@ -143,16 +211,11 @@
         </div>
 
         {{-- PAGINATION --}}
-        <div class="d-flex justify-content-between align-items-center mt-3 px-3 pb-3">
+        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top">
 
             <small class="text-muted">
-                Menampilkan
-                {{ $krs->firstItem() }}
-                -
-                {{ $krs->lastItem() }}
-                dari
-                {{ $krs->total() }}
-                data
+                Menampilkan {{ $krs->firstItem() }} - {{ $krs->lastItem() }}
+                dari {{ $krs->total() }} data
             </small>
 
             {{ $krs->links('pagination::bootstrap-5') }}

@@ -1,5 +1,78 @@
 @extends('layouts.admin')
 
+@push('styles')
+<style>
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        color: #fff;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-1px);
+        opacity: 0.9;
+    }
+
+    .btn-add { background: linear-gradient(135deg,#6366f1,#4f46e5); }
+    .btn-export { background: linear-gradient(135deg,#22c55e,#16a34a); }
+    .btn-import { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+
+    .search-wrap {
+        position: relative;
+        max-width: 300px;
+    }
+
+    .search-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .search-wrap input {
+        padding: 9px 12px 9px 34px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        outline: none;
+    }
+
+    .search-wrap input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+
+    .card-modern {
+        border-radius: 14px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    table th {
+        font-size: 12px;
+        text-transform: uppercase;
+        background: #f8fafc;
+    }
+
+    table td {
+        font-size: 14px;
+        color: #334155;
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div class="container-fluid">
@@ -7,152 +80,133 @@
     {{-- HEADER --}}
     <div class="row mb-3 align-items-center">
 
-        {{-- BUTTON KIRI --}}
+        {{-- LEFT BUTTON --}}
         <div class="col-md-6">
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
 
-                <button href="{{ route('mahasiswa.create') }}"
-                class="btn btn-primary d-inline-flex align-items-center gap-2">
+                <a href="{{ route('mahasiswa.create') }}" class="btn-modern btn-add">
                     <i class="fa fa-plus"></i> Tambah Mahasiswa
-                </button>
+                </a>
 
-                <button href="{{ route('mahasiswa.export.excel') }}"
-                class="btn btn-success d-inline-flex align-items-center gap-2">
+                <a href="#" class="btn-modern btn-export">
                     <i class="fa fa-file-excel"></i> Export Excel
-                </button>
+                </a>
 
-                <form id="importForm"
-                    action="{{ route('mahasiswa.import.excel') }}"
-                    method="POST"
-                    enctype="multipart/form-data"
-                    class="d-inline">
-
+                <form action="#" method="POST" enctype="multipart/form-data" class="d-inline">
                     @csrf
+                    <input type="file" id="file" hidden>
 
-                    <input type="file"
-                        id="excelFile"
-                        name="file"
-                        accept=".xlsx,.xls"
-                        hidden>
-
-                    <button type="button"
-                            class="btn btn-info d-inline-flex align-items-center gap-2"
-                            onclick="document.getElementById('excelFile').click();">
+                    <button type="button" class="btn-modern btn-import"
+                        onclick="document.getElementById('file').click();">
                         <i class="fa fa-upload"></i> Import Excel
                     </button>
-
                 </form>
 
             </div>
         </div>
 
-        {{-- SEARCH KANAN --}}
-        <div class="col-md-6">
-            <div class="d-flex justify-content-end">
-                <div class="input-group" style="max-width:300px;">
-                    <span class="input-group-text bg-white">
-                        <i class="fa fa-search text-muted"></i>
-                    </span>
-                    <input type="text"
-                           id="searchInput"
-                           class="form-control"
-                           placeholder="Cari mahasiswa...">
-                </div>
+        {{-- SEARCH RIGHT --}}
+        <div class="col-md-6 d-flex justify-content-end mt-2 mt-md-0">
+
+            <div class="search-wrap">
+                <i class="fa fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari mahasiswa...">
             </div>
+
         </div>
 
     </div>
 
-    {{-- CARD TABLE --}}
-    <div class="card shadow border-0">
+    {{-- TABLE --}}
+    <div class="card card-modern">
 
-        <div class="card-header bg-white">
-            <h5 class="mb-0">
+        <div class="card-header d-flex justify-content-between">
+            <span>
                 <i class="fa fa-user-graduate text-primary"></i>
                 Data Mahasiswa
-            </h5>
+            </span>
+            <small class="text-muted">
+                {{ $mahasiswas->total() }} data
+            </small>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-0">
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table table-hover mb-0">
 
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
-                            <th width="60">No</th>
+                            <th>No</th>
                             <th>NIM</th>
                             <th>Nama</th>
                             <th>Jenis Kelamin</th>
-                            <th>Angkatan</th>
-                            <th>User</th>
-                            <th width="180">Aksi</th>
+                            <th>Jurusan</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                    @foreach($mahasiswas as $key => $m)
+
+                    @forelse($mahasiswas as $key => $m)
                         <tr>
                             <td>{{ $mahasiswas->firstItem() + $key }}</td>
-                            <td>{{ $m->nim }}</td>
-                            <td>{{ $m->nama }}</td>
-                            <td>{{ $m->jk }}</td>
-                            <td>{{ $m->angkatan }}</td>
-                            <td>{{ $m->user->name ?? '-' }}</td>
+                            <td>{{ $m->nim ?? '-' }}</td>
+                            <td>{{ $m->nama ?? '-' }}</td>
+                            <td>{{ $m->jk}}</td>
+                            <td>{{ $m->angkatan}}</td>
 
                             <td class="text-nowrap">
 
-                            <a href="{{ route('mahasiswa.show', $m->id) }}"
-                            class="btn btn-info btn-sm">
-                                Detail
-                            </a>
+                                <a href="#" class="btn btn-info btn-sm">Detail</a>
 
-                            <a href="{{ route('mahasiswa.edit', $m->id) }}"
-                            class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
+                                <a href="{{ route('mahasiswa.edit', $m->id) }}"
+                                   class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
 
-                            <form action="{{ route('mahasiswa.destroy', $m->id) }}"
-                                method="POST"
-                                class="d-inline">
+                                <form action="{{ route('mahasiswa.destroy', $m->id) }}"
+                                      method="POST"
+                                      class="d-inline">
 
-                                @csrf
-                                @method('DELETE')
+                                    @csrf
+                                    @method('DELETE')
 
-                                <button class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Yakin hapus?')">
-                                    Hapus
-                                </button>
+                                    <button class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Hapus data ini?')">
+                                        Hapus
+                                    </button>
 
-                            </form>
+                                </form>
 
-                        </td>
-
+                            </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                Tidak ada data mahasiswa
+                            </td>
+                        </tr>
+                    @endforelse
+
                     </tbody>
 
                 </table>
 
             </div>
 
-            {{-- PAGINATION --}}
-            <div class="d-flex justify-content-between align-items-center mt-3">
+        </div>
 
-                <small class="text-muted">
-                    Menampilkan
-                    {{ $mahasiswas->firstItem() }}
-                    -
-                    {{ $mahasiswas->lastItem() }}
-                    dari
-                    {{ $mahasiswas->total() }}
-                    data
-                </small>
+        {{-- PAGINATION --}}
+        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top">
 
-                {{ $mahasiswas->links('pagination::bootstrap-5') }}
+            <small class="text-muted">
+                Menampilkan {{ $mahasiswas->firstItem() }} - {{ $mahasiswas->lastItem() }}
+                dari {{ $mahasiswas->total() }} data
+            </small>
 
-            </div>
+            {{ $mahasiswas->links('pagination::bootstrap-5') }}
 
         </div>
 
@@ -161,4 +215,3 @@
 </div>
 
 @endsection
-
