@@ -172,7 +172,7 @@
 
     {{-- Dashboard --}}
     <a href="/dashboard" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
-        <i class="fa fa-home"></i> Dashboard
+        <i class="fa-solid fa-gauge"></i> Dashboard
     </a>
 
     <div class="nav-divider"></div>

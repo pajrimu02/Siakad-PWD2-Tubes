@@ -193,7 +193,7 @@
 
             <a href="{{ route('user.dashboard') }}"
                class="{{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
-                <i class="fa-solid fa-house"></i>
+                <i class="fa-solid fa-gauge"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
 
