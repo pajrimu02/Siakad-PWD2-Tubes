@@ -135,7 +135,7 @@
         @foreach(range(1, 8) as $s)
         <a href="{{ route('matakuliah.index', ['semester' => $s, 'search' => request('search')]) }}"
            class="filter-chip {{ request('semester') == $s ? 'active' : '' }}">
-            <span class="chip-dot"></span> Semester {{ $s }}
+            <span class="chip-dot"></span> Smt {{ $s }}
         </a>
         @endforeach
     </div>

@@ -139,10 +139,7 @@ Route::get('krs-export',  [KrsController::class, 'export'])->name('krs.export');
 
 Route::get('nilai-export',  [NilaiadminController::class, 'export'])->name('nilai.export');
 
-Route::get(
-    '/user/export-excel',
-    [UserController::class,'exportExcel']
-    )->name('users.export.excel');
+Route::get('/export/excel', [UserController::class, 'exportExcel'])->name('users.export.excel');
     
 /*
 |--------------------------------------------------------------------------
@@ -162,7 +159,4 @@ Route::post('krs-import', [KrsController::class, 'import'])->name('krs.import');
 
 Route::post('nilai-import', [NilaiadminController::class, 'import'])->name('nilai.import');
 
-Route::post(
-    '/user/import-excel',
-    [UserController::class,'importExcel']
-)->name('users.import.excel');
+Route::post('users/import', [UserController::class, 'importExcel'])->name('users.import.excel');
