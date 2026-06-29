@@ -8,67 +8,64 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 
-class MahasiswaImport implements
-    ToModel,
-    WithHeadingRow,
-    WithValidation,
-    SkipsOnError
+class MahasiswaImport implements ToModel, WithHeadingRow, SkipsOnError
 {
     use SkipsErrors;
 
     /**
-     * Format kolom Excel yang diharapkan (sesuai heading row):
+     * Format heading Excel (baris pertama):
      * nim | nama | jk | angkatan | no_hp | alamat
      */
     public function model(array $row)
     {
-        // Skip jika NIM sudah ada
-        if (Mahasiswa::where('nim', $row['nim'])->exists()) {
+        // Ambil nilai & bersihkan whitespace
+        $nim      = trim($row['nim']      ?? '');
+        $nama     = trim($row['nama']     ?? '');
+        $jk       = strtoupper(trim($row['jk'] ?? $row['jenis_kelamin'] ?? ''));
+        $angkatan = trim($row['angkatan'] ?? '');
+        $no_hp    = trim($row['no_hp']    ?? $row['nohp'] ?? $row['no_hp_'] ?? '');
+        $alamat   = trim($row['alamat']   ?? '');
+
+        // Skip baris kosong atau data tidak lengkap
+        if (!$nim || !$nama || !$angkatan) {
             return null;
         }
 
-        return DB::transaction(function () use ($row) {
+        // Normalisasi JK — terima berbagai format
+        if (in_array($jk, ['LAKI-LAKI', 'LAKI', 'L', 'MALE', 'M'])) {
+            $jk = 'L';
+        } elseif (in_array($jk, ['PEREMPUAN', 'WANITA', 'P', 'FEMALE', 'F'])) {
+            $jk = 'P';
+        } else {
+            $jk = 'L'; // default jika tidak dikenali
+        }
+
+        // Skip jika NIM sudah ada
+        if (Mahasiswa::where('nim', $nim)->exists()) {
+            return null;
+        }
+
+        return DB::transaction(function () use ($nim, $nama, $jk, $angkatan, $no_hp, $alamat) {
             $user = User::create([
-                'name'     => $row['nama'],
-                'email'    => $row['nim'] . '@mahasiswa.ac.id',
-                'password' => Hash::make($row['nim']),
+                'name'     => $nama,
+                'email'    => $nim . '@mahasiswa.ac.id',
+                'password' => Hash::make($nim),
             ]);
 
             $user->assignRole('mahasiswa');
 
             return new Mahasiswa([
                 'user_id'  => $user->id,
-                'nim'      => $row['nim'],
-                'nama'     => $row['nama'],
-                'jk'       => strtoupper($row['jk']),      // L atau P
-                'angkatan' => $row['angkatan'],
-                'no_hp'    => $row['no_hp']  ?? null,
-                'alamat'   => $row['alamat'] ?? null,
+                'nim'      => $nim,
+                'nama'     => $nama,
+                'jk'       => $jk,
+                'angkatan' => $angkatan,
+                'no_hp'    => $no_hp  ?: null,
+                'alamat'   => $alamat ?: null,
             ]);
         });
-    }
-
-    public function rules(): array
-    {
-        return [
-            'nim'      => 'required',
-            'nama'     => 'required',
-            'jk'       => 'required|in:L,P,l,p',
-            'angkatan' => 'required|digits:4',
-        ];
-    }
-
-    public function customValidationMessages(): array
-    {
-        return [
-            'nim.required'      => 'Kolom NIM wajib diisi.',
-            'nama.required'     => 'Kolom Nama wajib diisi.',
-            'jk.in'             => 'Kolom JK harus berisi L atau P.',
-            'angkatan.digits'   => 'Angkatan harus 4 digit.',
-        ];
     }
 }
